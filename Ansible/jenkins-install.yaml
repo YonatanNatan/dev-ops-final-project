@@ -1,5 +1,6 @@
 ---
 - name: Install jenkins
+  hosts: all
   become: yes
   become_user: root
 
