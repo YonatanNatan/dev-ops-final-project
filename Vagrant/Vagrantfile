@@ -1,0 +1,78 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANT_BOX = "Vbox-ubuntu-server-22-04-3"  
+NETWORK = "VirtualBox Host-Only Ethernet Adapter #2"
+MACINE_MEMORY = 2048
+MACHINE_CPUS = 2
+K8SWORKERS = 2
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+
+  config.vm.define "jenkins" do |jenkins|
+    jenkins.vm.box = VAGRANT_BOX
+    jenkins.vm.hostname = "jenkins-server"
+    jenkins.vm.network "private_network", ip: "192.168.0.16", name: NETWORK
+    jenkins.vm.provider "virtualbox" do |provider|
+      provider.name = "jenkins-server"
+      provider.memory = MACINE_MEMORY
+      provider.cpus = MACHINE_CPUS
+    end
+   # jenkins.vm.provision "shell", path: "final-project/conf/jenkins_setup.sh" 
+  end
+
+  config.vm.define "ansible" do |ansible|
+    ansible.vm.box = VAGRANT_BOX
+    ansible.vm.hostname = "ansible-server"
+    ansible.vm.network "private_network", ip: "192.168.0.15", name: NETWORK
+    ansible.vm.provider "virtualbox" do |provider|
+      provider.name = "ansible-server"
+      provider.memory = MACINE_MEMORY
+      provider.cpus = MACHINE_CPUS
+    end
+   # ansible.vm.provision "shell", path: "final-project/conf/ansible_setup.sh" 
+  end
+
+  config.vm.define "k8s-master" do |k8smaster|
+    k8smaster.vm.box = VAGRANT_BOX
+    k8smaster.vm.hostname = "k8smaster-server"
+    k8smaster.vm.network "private_network", ip: "192.168.0.17", name: NETWORK
+    k8smaster.vm.provider "virtualbox" do |provider|
+      provider.name = "k8smaster-server"
+      provider.memory = MACINE_MEMORY
+      provider.cpus = MACHINE_CPUS
+    end
+   # k8smaster.vm.provision "shell", path: "final-project/conf/k8smaster_setup.sh" 
+  end
+
+  (1..K8SWORKERS).each do |i|
+    config.vm.define "k8s-worker-#{i}" do |k8sworker|
+      k8sworker.vm.box = VAGRANT_BOX
+      k8sworker.vm.hostname = "k8s-worker-#{i}"
+      k8sworker.vm.network "private_network", ip: "192.168.0.#{i+17}", name: NETWORK
+      k8sworker.vm.provider "virtualbox" do |provider|
+        provider.name = "k8s-worker-#{i}"
+        provider.memory = MACINE_MEMORY
+        provider.cpus = MACHINE_CPUS
+      end
+    #  k8sworker.vm.provision "shell", path: "final-project/conf/k8sworker_setup.sh" 
+    end
+  end
+
+  config.vm.define "prometheus" do |prometheus|
+    prometheus.vm.box = VAGRANT_BOX
+    prometheus.vm.hostname = "prometheus-server"
+    prometheus.vm.network "private_network", ip: "192.168.0.20", name: NETWORK
+    prometheus.vm.provider "virtualbox" do |provider|
+      provider.name = "prometheus-server"
+      provider.memory = MACINE_MEMORY
+      provider.cpus = MACHINE_CPUS
+    end
+   # prometheus.vm.provision "shell", path: "final-project/conf/prometheus_setup.sh" 
+  end
+
+end
